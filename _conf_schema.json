@@ -1,0 +1,84 @@
+{
+    "whitelist": {
+        "description": "白名单",
+        "hint": "只有在白名单中的群组才会触发插件的功能，优先级高于黑名单。留空不限制。",
+        "type": "list",
+        "default": []
+    },
+    "blacklist": {
+        "description": "黑名单",
+        "hint": "在黑名单中的群组不会触发插件的功能。留空不限制。",
+        "type": "list",
+        "default": []
+    },
+    "debounce_interval": {
+        "description": "防抖秒数",
+        "hint": "防抖机制：同一个会话下，防抖时间内不解析那些已经解析过的链接。设为 0 表示不启用防抖机制",
+        "type": "int",
+        "slider": {
+            "min": 0,
+            "max": 600,
+            "step": 10
+        },
+        "default": 300
+    },
+    "common_timeout": {
+        "description": "请求超时时间",
+        "hint": "解析请求超时时间，单位秒。",
+        "type": "int",
+        "slider": {
+            "min": 5,
+            "max": 60,
+            "step": 1
+        },
+        "default": 15
+    },
+    "proxy": {
+        "description": "代理地址",
+        "hint": "如 http://127.0.0.1:7890, 留空则直连。配置代理地址后, 请在各个解析器中再配置是否使用代理",
+        "type": "string",
+        "default": ""
+    },
+    "parsers_template": {
+        "description": "解析器",
+        "type": "template_list",
+        "hint": "配置各个解析器。",
+        "templates": {
+            "bilibili": {
+                "name": "Bilibili解析器",
+                "items": {
+                    "enable": {
+                        "description": "是否启用",
+                        "type": "bool",
+                        "default": true
+                    },
+                    "use_proxy": {
+                        "description": "是否使用代理",
+                        "type": "bool",
+                        "default": false
+                    }
+                }
+            },
+            "youtube": {
+                "name": "YouTube解析器",
+                "items": {
+                    "enable": {
+                        "description": "是否启用",
+                        "type": "bool",
+                        "default": true
+                    },
+                    "use_proxy": {
+                        "description": "是否使用代理",
+                        "type": "bool",
+                        "default": false
+                    },
+                    "api_key": {
+                        "description": "YouTube Data API Key",
+                        "type": "string",
+                        "default": ""
+                    }
+                }
+            }
+        }
+    }
+}

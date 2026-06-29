@@ -1,14 +1,50 @@
-# astrbot-plugin-helloworld
+# AstrBot 链接解析插件
 
-AstrBot 插件模板 / A template plugin for AstrBot plugin feature
+本插件用于 AstrBot 的链接解析功能，目前支持 Bilibili, Youtube 链接匹配与解析。
 
-> [!NOTE]
-> This repo is just a template of [AstrBot](https://github.com/AstrBotDevs/AstrBot) Plugin.
-> 
-> [AstrBot](https://github.com/AstrBotDevs/AstrBot) is an agentic assistant for both personal and group conversations. It can be deployed across dozens of mainstream instant messaging platforms, including QQ, Telegram, Feishu, DingTalk, Slack, LINE, Discord, Matrix, etc. In addition, it provides a reliable and extensible conversational AI infrastructure for individuals, developers, and teams. Whether you need a personal AI companion, an intelligent customer support agent, an automation assistant, or an enterprise knowledge base, AstrBot enables you to quickly build AI applications directly within your existing messaging workflows.
+## 功能概述
 
-# Supports
+- 监听群聊消息，匹配支持的链接格式
+- 自动解析链接并返回图片与描述文本
+- 支持 `whitelist` / `blacklist` 控制群组触发范围
+- 支持防抖机制，避免重复解析相同链接或资源
+- 提供通用请求超时和代理配置
+- 支持通过 `parsers_template` 启用/禁用解析器
 
-- [AstrBot Repo](https://github.com/AstrBotDevs/AstrBot)
-- [AstrBot Plugin Development Docs (Chinese)](https://docs.astrbot.app/dev/star/plugin-new.html)
-- [AstrBot Plugin Development Docs (English)](https://docs.astrbot.app/en/dev/star/plugin-new.html)
+## 配置说明
+
+### 全局配置
+
+- `whitelist`
+  - 白名单群组列表。设置后仅白名单中的群组会触发插件。
+  - 为空表示不限制。
+
+- `blacklist`
+  - 黑名单群组列表。设置后黑名单中的群组不会触发插件。
+  - 为空表示不限制。
+
+- `debounce_interval`
+  - 防抖时间，单位秒。
+  - 相同链接在同一会话内防抖时间内不会重复解析。
+  - 设为 `0` 表示关闭防抖。
+
+- `common_timeout`
+  - 请求超时时间，单位秒。
+
+- `proxy`
+  - 代理地址，例如 `http://127.0.0.1:7890`。
+  - 为空表示直连。
+
+### 解析器模板
+
+`parsers_template` 用于启用或禁用不同解析器。当前定义的模板包括：
+
+- `bilibili`
+- `youtube`
+
+其中每个模板包含：
+
+- `enable`：是否启用该解析器
+- `use_proxy`：是否为该解析器启用代理
+
+> 注意：当前代码中实际实现的解析器只有 `bilibili`，`youtube` 作为扩展模板预留。
