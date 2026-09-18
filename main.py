@@ -94,17 +94,18 @@ class ParserPlugin(Star):
         keyword, searched = self._match_link(text) or (None, None)
         if not keyword or not searched:
             return
+        logger.info(f"匹配到链接: {searched.group(0)}，使用解析器: {keyword}")
         
-        # 基于link的防抖
-        link = searched.group(0)
-        if self.debouncer.hit_link(event.session_id, link):
-            logger.debug(f"防抖命中: {link}")
-            return
+        # # 基于link的防抖
+        # link = searched.group(0)
+        # if self.debouncer.hit_link(event.session_id, link):
+        #     logger.debug(f"防抖命中: {link}")
+        #     return
         
         # 解析
         result = await self.parsers_map[keyword].parse(searched)
         if not result:
-            logger.debug(f"解析失败: {text}")
+            logger.error(f"解析失败: {text}")
             return
         image_url, description, resource_id = result.image_url, result.description, result.resource_id
 
@@ -115,6 +116,7 @@ class ParserPlugin(Star):
         
         # 组装并回复消息
         chain = [Image.fromURL(image_url), Plain(text=description)]
+        logger.info(f"组装回复消息: {chain}")
         yield event.chain_result(chain=chain)
     async def terminate(self):
         """可选择实现异步的插件销毁方法，当插件被卸载/停用时会调用。"""

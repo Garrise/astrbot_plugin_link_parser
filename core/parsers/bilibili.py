@@ -1,4 +1,5 @@
 import re, requests
+from urllib.parse import urlparse
 from typing import Any
 from .base import BaseParser
 from ..data import ParseResult
@@ -40,7 +41,48 @@ class BilibiliParser(BaseParser):
         elif is_bv:
             api_url = f"https://api.bilibili.com/x/web-interface/view?bvid={id}"
         else:
-            return None
+            # 短链测试
+            headers = {
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+            }
+            try:
+                # 1. 阻止重定向以获取原始长链
+                response = requests.head(
+                    link, headers=headers, allow_redirects=False, timeout=5
+                )
+
+                if response.status_code not in (301, 302):
+                    logger.error(f"短链解析失败，响应状态码: {response.status_code}")
+                    return None  # 如果不是重定向响应，则返回 None
+
+                long_url = response.headers.get("Location")
+                if not long_url:
+                    logger.error(f"短链解析失败，响应头中未找到 Location")
+                    return None
+
+                # 2. 提取 URL 中的路径部分进行匹配
+                parsed_url = urlparse(long_url)
+                path = parsed_url.path  # 例如 "/video/BV11x411a7yX/" 或 "/video/av170001/"
+
+                # 3. 正则匹配 BV 号或 av 号
+                # 匹配 BV 号 (以 BV 开头，后面跟着10位字母或数字)
+                bv_match = re.search(r"(BV[a-zA-Z0-9]{10})", path)
+                # 匹配 av 号 (以 av 开头，后面跟着纯数字)
+                av_match = re.search(r"(av\d+)", path, re.IGNORECASE)
+                if bv_match:
+                    bv_id = bv_match.group(1)
+                    api_url = f"https://api.bilibili.com/x/web-interface/view?bvid={bv_id}"
+                elif av_match:
+                    av_id = av_match.group(1).lower()  # 转为小写格式
+                    # 根据你的要求：aid={id[2:]} 也就是去掉开头的 'av'，只留数字
+                    api_url = f"https://api.bilibili.com/x/web-interface/view?aid={av_id[2:]}"
+                else:
+                    logger.error(f"无法从长链中提取 BV 号或 av 号: {long_url}")
+                    return None
+
+            except requests.exceptions.RequestException as e:
+                logger.error(f"请求短链解析失败: {e}")
+                return None
         
         try:
             resp = requests.get(api_url, **self._get_request_kwargs())
