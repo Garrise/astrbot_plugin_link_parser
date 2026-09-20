@@ -72,10 +72,12 @@ class BilibiliParser(BaseParser):
                 if bv_match:
                     bv_id = bv_match.group(1)
                     api_url = f"https://api.bilibili.com/x/web-interface/view?bvid={bv_id}"
+                    id = bv_id  # 更新 id 为 BV 号
                 elif av_match:
                     av_id = av_match.group(1).lower()  # 转为小写格式
                     # 根据你的要求：aid={id[2:]} 也就是去掉开头的 'av'，只留数字
                     api_url = f"https://api.bilibili.com/x/web-interface/view?aid={av_id[2:]}"
+                    id = av_id  # 更新 id 为 av 号
                 else:
                     logger.error(f"无法从长链中提取 BV 号或 av 号: {long_url}")
                     return None

@@ -96,11 +96,11 @@ class ParserPlugin(Star):
             return
         logger.info(f"匹配到链接: {searched.group(0)}，使用解析器: {keyword}")
         
-        # # 基于link的防抖
-        # link = searched.group(0)
-        # if self.debouncer.hit_link(event.session_id, link):
-        #     logger.debug(f"防抖命中: {link}")
-        #     return
+        # 基于link的防抖
+        link = searched.group(0)
+        if self.debouncer.hit_link(event.session_id, link):
+            logger.debug(f"防抖命中: {link}")
+            return
         
         # 解析
         result = await self.parsers_map[keyword].parse(searched)
